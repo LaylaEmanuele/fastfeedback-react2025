@@ -30,14 +30,14 @@ const DashboardShell = ({ children }) => {
           margin="0 auto"
           w="full"
           px={8}
-          h="70px"
+      
         >
           <Flex>
             <Icon name="logo" size="24px" mr={8} />
             <Link mr={4}>Sites</Link>
             <Link>Feedback</Link>
           </Flex>
-          <Flex justifyContent="center" alignItems="center">
+          <Flex justifyContent="center" alignItems="center" >
             {user && (
               <Button variant="ghost" mr={2} onClick={() => signout()}>
                 Log Out

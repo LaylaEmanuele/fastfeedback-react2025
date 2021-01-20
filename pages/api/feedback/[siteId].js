@@ -4,7 +4,7 @@ import { getAllFeedback } from '@/lib/db-admin';
 export default async (req, res) => {
   const siteId = req.query.siteId;
   const { feedback, error } = await getAllFeedback(siteId);
-  console.log(feedback);
+
   if (error) {
     res.status(500).json({ error });
   }
