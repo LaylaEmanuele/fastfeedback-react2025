@@ -1,36 +1,28 @@
-import useSWR from 'swr';
+import { auth } from '@/lib/firebase-admin';
+import { getUserFeedback } from '@/lib/db-admin';
+import { logger, formatObjectKeys } from '@/utils/logger';
 
-import { useAuth } from '@/lib/auth';
-import fetcher from '@/utils/fetcher';
-import EmptyState from '@/components/EmptyState';
-import DashboardShell from '@/components/DashboardShell';
-import FeedbackTable from '@/components/FeedbackTable';
-import FeedbackTableHeader from '@/components/FeedbackTableHeader';
-import FeedbackTableSkeleton from '@/components/FeedbackTableSkeleton';
+export default async (req, res) => {
+  try {
+    const { uid } = await auth.verifyIdToken(req.headers.token);
+    const { feedback } = await getUserFeedback(uid);
 
-const MyFeedback = () => {
-  const { user } = useAuth();
-  const { data } = useSWR(user ? ['/api/feedback', user.token] : null, fetcher);
-
-  if (!data) {
-    return (
-      <DashboardShell>
-        <FeedbackTableHeader />
-        <FeedbackTableSkeleton />
-      </DashboardShell>
+    res.status(200).json({ feedback });
+  } catch (error) {
+    logger.error(
+      {
+        request: {
+          headers: formatObjectKeys(req.headers),
+          url: req.url,
+          method: req.method
+        },
+        response: {
+          statusCode: res.statusCode
+        }
+      },
+      error.message
     );
+
+    res.status(500).json({ error });
   }
-
-  return (
-    <DashboardShell>
-      <FeedbackTableHeader />
-      {data.feedback.length ? (
-        <FeedbackTable feedback={data.feedback} />
-      ) : (
-        <EmptyState />
-      )}
-    </DashboardShell>
-  );
 };
-
-export default MyFeedback;
